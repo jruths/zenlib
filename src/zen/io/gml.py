@@ -1,19 +1,19 @@
 """
-The ``zen.io.gml`` module (available as ``zen.gml``) supports the reading and 
-writing network data in the `Graph Modeling Language (GML) 
-<http://en.wikipedia.org/wiki/Graph_Modelling_Language>`_.  At present only 
+The ``zen.io.gml`` module (available as ``zen.gml``) supports the reading and
+writing network data in the `Graph Modeling Language (GML)
+<http://en.wikipedia.org/wiki/Graph_Modelling_Language>`_.  At present only
 reading GML is supported.
 
-GML is a flexible language for specifying the structure of a network (nodes 
-and edges) that can be annotated with arbitrary attributes and information. 
-This module provides a full implementation of the GML file format as specified 
-in the `technical report 
+GML is a flexible language for specifying the structure of a network (nodes
+and edges) that can be annotated with arbitrary attributes and information.
+This module provides a full implementation of the GML file format as specified
+in the `technical report
 <http://www.fim.uni-passau.de/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf>`_:
 
 .. note::
-	Source: Michael Himsolt. *GML: A portable Graph File Format*. Technical 
+	Source: Michael Himsolt. *GML: A portable Graph File Format*. Technical
 	Report, Universitat Passau.
-	
+
 Functions
 ---------
 
@@ -41,36 +41,36 @@ DIGITS_AND_QUOTES = DIGITS + ('"',)
 
 def write(G, filename, **kwargs):
 	"""
-	Writes graph to file using Graph Modeling Language (gml).  Node / Edge / 
-	Graph objects, if not None, are stored in the `name` attribute, and are 
-	restricted to numeric (but not complex), string, and boolean data types, 
-	otherwise an exception is raised.  
+	Writes graph to file using Graph Modeling Language (gml).  Node / Edge /
+	Graph objects, if not None, are stored in the `name` attribute, and are
+	restricted to numeric (but not complex), string, and boolean data types,
+	otherwise an exception is raised.
 
-	Node / Edge / Graph data, if not None, are stored in a zen_data attribute 
+	Node / Edge / Graph data, if not None, are stored in a zen_data attribute
 	and are similarly restricted.  Support may be added later for serialization
 	of arbitrary objects / data and associated to zen graphs.
-	
-	see 
-	http://www.fim.uni-passau.de/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf 
+
+	see
+	http://www.fim.uni-passau.de/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf
 	for more info about gml.
 
 	**Args**
-		* ``G`` (:py:class:`zen.Graph`, :py:class:'zen.Digraph`, 
-			:py:class:`zen.BipartiteGraph): Graph object to be written to 
+		* ``G`` (:py:class:`zen.Graph`, :py:class:'zen.Digraph`,
+			:py:class:`zen.BipartiteGraph): Graph object to be written to
 			file. Hypergraphs are not supported.
-	
+
 		* ``filename`` (str): Absolute path for the file to be written.
 
 	**KwArgs**
-		* ``write-data`` (bool | (bool, bool)): If 2-tuple of booleans 
-			supplied, first indicates whether to write out node data second 
-			whether to write out edge data.  If bool provided, it is applied 
+		* ``write-data`` (bool | (bool, bool)): If 2-tuple of booleans
+			supplied, first indicates whether to write out node data second
+			whether to write out edge data.  If bool provided, it is applied
 			for both node and edge data.
 
-		* ``use-zen-data`` (bool | (bool, bool)): Indicates whether to write 
-			out If 2-tuple of booleans supplied, first indicates whether to 
+		* ``use-zen-data`` (bool | (bool, bool)): Indicates whether to write
+			out If 2-tuple of booleans supplied, first indicates whether to
 			write out node data second whether to write out edge data.  If bool
-			provided, it is applied for both node and edge data. 
+			provided, it is applied for both node and edge data.
 
 	**Returns**:
 		* None
@@ -79,7 +79,7 @@ def write(G, filename, **kwargs):
 	# Determine the write mode.  There are various options the user can specify
 	# which are reconsiled and validated here
 	write_node_data, write_edge_data, use_node_zen_data, use_edge_zen_data = resolve_write_mode(kwargs)
-	
+
 	# Get the encoder to use.  This call resolves the various ways the user can
 	# specify encoding, and does basic checks that the encoder is valid
 	enc = resolve_codec(kwargs)
@@ -88,7 +88,7 @@ def write(G, filename, **kwargs):
 	fh.write('# This is a graph object in gml file format\n')
 	fh.write('# produced by the zen graph library\n\n')
 
-	# Describe the encoding method used to generate the file. 
+	# Describe the encoding method used to generate the file.
 	fh.write('ZenCodec "%s"\n' % enc.__name__)
 	fh.write('ZenStringEncoder "%s"\n\n' % enc.encode_str.__name__)
 
@@ -108,7 +108,7 @@ def write(G, filename, **kwargs):
 
 	else:
 		is_bipartite = False
-		fh.write('\tbipartite 0\n')		
+		fh.write('\tbipartite 0\n')
 
 	# iterate over nodes, writing them to the new gml file
 	for nidx, nobj, ndata in G.nodes_iter_(obj=True, data=True):
@@ -136,7 +136,7 @@ def write(G, filename, **kwargs):
 		fh.write('\tedge [\n')
 
 		# for digraphs, assumes endpoints order [source, target]
-		fh.write('\t\tsource ' + str(G.endpoints_(eidx)[0]) + '\n')	
+		fh.write('\t\tsource ' + str(G.endpoints_(eidx)[0]) + '\n')
 		fh.write('\t\ttarget ' + str(G.endpoints_(eidx)[1]) + '\n')
 		fh.write('\t\tweight ' + str(weight) + '\n')
 
@@ -153,25 +153,25 @@ def write(G, filename, **kwargs):
 	fh.write(']\n')
 	fh.close()
 
-	
+
 def format_zen_data(keyname, data, tab_depth, encoder, strict=True):
 	"""
-	Reformats supplied data to use gml.  Enforces restrictions on the types of 
+	Reformats supplied data to use gml.  Enforces restrictions on the types of
 	data that can be written to gml.
-	
+
 	**Args**
-		* data (bool | int | long | float | str | dict | list): object to be 
+		* data (bool | int | long | float | str | dict | list): object to be
 			written in gml
-		* key (str): key to be used in gml.  Needed here because in gml lists 
+		* key (str): key to be used in gml.  Needed here because in gml lists
 			are made by repeating the key in front of each value.
-		* tab_depth (int): number of tab characters to add to the beginning 
+		* tab_depth (int): number of tab characters to add to the beginning
 			of each line for nice formatting.
 
 	**Returns**
 		* formatted_data (str): gml representation of data
 	"""
 
-	
+
 	# Validation: key names must be strictly alphanumeric
 	if re.search('[^a-zA-Z0-9]', keyname) and strict:
 		raise ZenException(
@@ -224,7 +224,7 @@ def make_tree(fname, **kwargs):
 	# resolve the codec.  The user can specify the codec in various ways.
 	codec = resolve_codec(kwargs)
 
-	# read the file 
+	# read the file
 	fh = open(fname,'r')
 	gml_str = fh.read()
 	fh.close()
@@ -243,27 +243,27 @@ def make_tree(fname, **kwargs):
 def read(fname,**kwargs):
 	"""
 	Read GML-formatted network data stored in file named ``fname``.
-	
-	The node's ``id`` attribute is used to specify the node index.  The node's 
-	``name`` attribute is preferably used as the node object.  
+
+	The node's ``id`` attribute is used to specify the node index.  The node's
+	``name`` attribute is preferably used as the node object.
 
 	However, if the ``name`` attribute is missing and the ``label`` is present,
-	then the node's ``label`` attribute will be used as the node object.  If 
+	then the node's ``label`` attribute will be used as the node object.  If
 	both are missing, then the node id will be used as the node object.
-	
-	.. note::	
-		Currently graph attributes are not supported by the reader.  If 
+
+	.. note::
+		Currently graph attributes are not supported by the reader.  If
 		encountered, they will simply be skipped over and not added to the
-		final graph. This is simply because graph objects don't support 
+		final graph. This is simply because graph objects don't support
 		arbitrary data yet.
-	
+
 	**KwArgs**:
-	
+
 		* ``weight_fxn [=None]``: derive weight assignments from edge data.  If
-			specified, this function is called with one parameter: the full 
+			specified, this function is called with one parameter: the full
 			set of attributes that were specified for the edge.
 	"""
-	
+
 	# extract keyword arguments
 	weight_fxn = kwargs.pop('weight_fxn',None)
 
@@ -278,7 +278,7 @@ def read(fname,**kwargs):
 			graph_tree = gml_tree[0]
 			print 'Warning: multiple graphs stored in this file.  Use '\
 				'gml.read_all(fname, [...]) to get list of all graphs'
-	
+
 		return build_graph(graph_tree, weight_fxn)
 
 	else:
@@ -303,7 +303,7 @@ def read_all(fname, **kwargs):
 			graph_tree = gml_tree[0]
 			print 'Warning: multiple graphs stored in this file.  Use '\
 				'gml.read_all(fname, [...]) to get list of all graphs'
-	
+
 		return build_graph(graph_tree, weight_fxn)
 
 	else:
@@ -337,7 +337,7 @@ def build_graph(graph_tree, weight_fxn):
 			nodes = [ nodes ]
 
 		# Build each node and add to the graph
-		for node in nodes:	
+		for node in nodes:
 
 			# Does the node have an id?
 			has_id = True
@@ -354,7 +354,7 @@ def build_graph(graph_tree, weight_fxn):
 			# Got a valid node id
 			node_idx = node['id']
 
-			# For bipartite graphs determine which node set this belongs to 
+			# For bipartite graphs determine which node set this belongs to
 			if is_bipartite:
 				is_in_U = node['isInU']
 
@@ -370,15 +370,15 @@ def build_graph(graph_tree, weight_fxn):
 					node_obj = val
 
 				# give preference to 'name' as source of node_obj
-				elif key == 'label' and node_obj is None: 	
+				elif key == 'label' and node_obj is None:
 					node_obj = val
 
 				elif key == 'zenData':
 					zen_data = val
-				
+
 				# node_data is dict of all other attributes
-				else:	
-					node_data[key] = val 	
+				else:
+					node_data[key] = val
 
 			# _set_ to node_data else _append_
 			if zen_data is not None:
@@ -402,7 +402,7 @@ def build_graph(graph_tree, weight_fxn):
 						node_obj = tuple(node_obj)
 
 
-			# For bipartite graph, this insertion method does not guarantee 
+			# For bipartite graph, this insertion method does not guarantee
 			# that indices will be unchanged after a read-write cycle
 			if is_bipartite:
 				G.add_node_by_class(is_in_U, node_obj, node_data)
@@ -413,7 +413,7 @@ def build_graph(graph_tree, weight_fxn):
 						G.edge_list_capacity, node_obj,node_data)
 
 				else:
-					G.add_node_x(node_idx, G.edge_list_capacity, node_obj, 
+					G.add_node_x(node_idx, G.edge_list_capacity, node_obj,
 						node_data)
 
 			else:
@@ -477,14 +477,14 @@ def build_graph(graph_tree, weight_fxn):
 					zen_data = val
 
 				# edge_data is dict of all other attributes
-				else: 
-					edge_data[key] = val 	
+				else:
+					edge_data[key] = val
 
 			# give precedence to a weight-getting function if provided
 			if weight_fxn != None:
 				weight = weight_fxn(edge)
 
-			# if zenData is only other attribute aside from those handled above 
+			# if zenData is only other attribute aside from those handled above
 			# _set_ to edge_data else _append_
 			if zen_data is not None:
 				if len(edge_data) == 0:
@@ -501,7 +501,7 @@ def build_graph(graph_tree, weight_fxn):
 				G.add_edge_(source,target,edge_data,weight)
 
 	return G
-	
+
 def resolve_write_mode(kwargs):
 
 	# Decide whether to write node and edge data
@@ -519,7 +519,7 @@ def resolve_write_mode(kwargs):
 
 		#validation:
 		if(not isinstance(write_node_data, bool) or not
-			isintstance(write_edge_data, bool)):
+			isinstance(write_edge_data, bool)):
 			raise zenException('write_data keyword argument takes bool or'\
 				' 2-tuple of bools. Found: %s (%s)' %(
 					write_data, type(write_data)))
@@ -536,12 +536,12 @@ def resolve_write_mode(kwargs):
 			use_node_zen_data = use_edge_zen_data = kwargs['use_zen_data']
 
 		#validation:
-		if(not isinstance(write_node_data, bool) or 
-			not isintstance(write_edge_data, bool)):
+		if(not isinstance(write_node_data, bool) or
+			not isinstance(write_edge_data, bool)):
 			raise zenException('write_data keyword argument takes bool or'\
 				' 2-tuple of bools. Found: %s (%s)' %(
 					write_data, type(write_data)))
-	
+
 	return write_node_data, write_edge_data, use_node_zen_data, use_edge_zen_data
 
 

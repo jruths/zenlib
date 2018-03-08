@@ -248,8 +248,6 @@ cpdef np.ndarray[np.float_t, ndim=1] __lcc_undirected(Graph G):
 		else:
 			C[ni] = <float> num_tris / <float> num_vees
 			
-		idx += 1
-
 	return C
 	
 cpdef float ncc(G) except -1:
